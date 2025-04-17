@@ -16,7 +16,7 @@ class SoundPlayer {
     
         try {
             const player = createAudioPlayer();
-            const resource = createAudioResource(path.join(this.projectRoot, 'assets', 'audio', filename));
+            const resource = createAudioResource(path.join(this.projectRoot, 'assets', 'audio', 'Sabs', filename));
         
             connection.subscribe(player);
             player.play(resource);
