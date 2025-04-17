@@ -1,0 +1,65 @@
+const { Client, GatewayIntentBits } = require('discord.js');
+const OverlordSession = require('./sessions/OverlordSession');
+require('dotenv').config();
+const PROJECT_ROOT = __dirname;
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.MessageContent
+  ]
+});
+
+const sessions = new Map();
+
+client.once('ready', () => {
+    console.log('Logged in as ' + client.user.tag);
+});
+
+client.on('messageCreate', async (message) => {
+  if (!message.content.startsWith('!overlord')) return;
+
+  const args = message.content.split(' ').slice(1);
+  const cmd = args[0]?.toLowerCase();
+
+  if (cmd === 'stop') {
+    const session = sessions.get(message.guild.id);
+    if (session) {
+      session.stop();
+      sessions.delete(message.guild.id);
+    } else {
+      message.channel.send('⚠️ No Overlord session is currently running.');
+    }
+    return;
+  }
+
+  if (!message.member.voice.channel) {
+    return message.reply('🔊 You must be in a voice channel to start Overlord.');
+  }
+
+  if (sessions.has(message.guild.id)) {
+    return message.reply('⏳ An Overlord session is already running!');
+  }
+
+  // Arg parsing
+  let focusMinutes = 25, breakMinutes = 5, shouldMute = false;
+
+  if (!isNaN(args[0])) focusMinutes = parseFloat(args[0]);
+  if (!isNaN(args[1])) breakMinutes = parseFloat(args[1]);
+  if (args.includes('mute')) shouldMute = true;
+
+  if (focusMinutes < 1 || breakMinutes < 1) {
+    return message.reply('⚠️ Focus and break times must be at least 1 minute.');
+  }
+
+  const voiceChannel = message.member.voice.channel;
+  const textChannel = message.channel;
+
+  const session = new OverlordSession(PROJECT_ROOT, voiceChannel, textChannel, focusMinutes, breakMinutes, shouldMute);
+  sessions.set(message.guild.id, session);
+  session.start();
+});
+
+client.login(process.env.DISCORD_TOKEN).catch(console.error);
