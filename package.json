@@ -1,0 +1,26 @@
+{
+  "name": "overlord",
+  "version": "1.0.0",
+  "description": "A basic pomodoro discord bot for my wife",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jacob-austin/Overlord.git"
+  },
+  "author": "Jacob Le",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jacob-austin/Overlord/issues"
+  },
+  "homepage": "https://github.com/jacob-austin/Overlord#readme",
+  "dependencies": {
+    "@discordjs/opus": "^0.10.0",
+    "@discordjs/voice": "^0.18.0",
+    "discord.js": "^14.18.0",
+    "dotenv": "^16.5.0",
+    "ffmpeg-static": "^5.2.0"
+  }
+}
