@@ -40,15 +40,43 @@ client.on('messageCreate', async (message) => {
         return message.reply('You need to be in a voice channel to use this command!');
     }
 
+    const args = message.content.split(' ');
+    const shouldMute = args.includes('mute');
     const voiceChannel = message.member.voice.channel;
-    
-    message.channel.send(`🍅 Overlord started! Focus time for 25 minutes.`);
+    const members = voiceChannel.members.filter(member => !member.user.bot);
+
+    let mutedUsers = [];
+    if (shouldMute) {
+        for (const member of members.values()) {
+            try {
+                await member.voice.setMute(true);
+                mutedUsers.push(member.id);
+            } catch (error) {
+                console.error(`Failed to mute ${member.user.username}: ${error.message}`);
+            }
+        }
+        message.channel.send('🍅 Overlord started! 🔇 Everyone muted for Pomodoro session.');
+    } else {
+        message.channel.send(`🍅 Overlord started! Focus time for 25 minutes.`);
+    }
+
     playSound(voiceChannel, 'startFocus.mp3');
 
     setTimeout(() => {
         playSound(voiceChannel, 'endFocus.mp3');
-        message.channel.send(`🍅 Overlord ended! Time to take a break!`);
-    }, 25 * 60 * 1000); // 25 minutes
+        if (shouldMute) {
+            members.forEach(member => {
+                if (mutedUsers.includes(member.id) && member.voice.serverMute === true) {
+                    member.voice.setMute(false).catch(error => {
+                        console.error(`Failed to unmute ${member.user.username}: ${error.message}`);
+                    });
+                }
+            });
+            message.channel.send(`🍅 Overlord ended! Everyone is unmuted.`);
+        } else {
+            message.channel.send(`🍅 Overlord ended! Time to take a break!`);
+        }
+    }, 0.25 * 60 * 1000); // 25 minutes
 });
 
 client.login(process.env.DISCORD_TOKEN).catch(console.error);
