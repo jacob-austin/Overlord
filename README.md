@@ -16,7 +16,7 @@ And stopped with the 'stop' option:
 ```console
 !overlord stop
 ```
-Additionally, two numbers can be passed after the start command to specify the length of focus and break times. For example, a 50 minute focus and 10 minutes break would be:
+Additionally, two numbers can be passed after the start command to specify the length of focus and break times, with the defaults being 25/5. For example, a 50 minute focus and 10 minutes break would be:
 ```console
 !overlord 50 10
 ```
