@@ -1,4 +1,5 @@
 const SoundPlayer = require('../sound-player/SoundPlayer');
+const { mutedByBot } = require('../globals');
 
 class OverlordSession {
   constructor(projectRoot, voiceChannel, textChannel, focusMinutes = 25, breakMinutes = 5, shouldMute = false) {
@@ -37,6 +38,7 @@ class OverlordSession {
         try {
           await member.voice.setMute(true);
           this.mutedUsers.push(member.id);
+          mutedByBot.add(member.id);
         } catch (err) {
           console.error(`Could not mute ${member.user.username}: ${err.message}`);
         }
@@ -71,6 +73,8 @@ class OverlordSession {
       if (this.mutedUsers.includes(member.id) && member.voice.serverMute) {
         try {
           await member.voice.setMute(false);
+          mutedByBot.delete(member.id);
+          this.mutedUsers = this.mutedUsers.filter(id => id !== member.id);
         } catch (err) {
           console.error(`Failed to unmute ${member.user.username}: ${err.message}`);
         }

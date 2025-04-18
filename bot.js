@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const OverlordSession = require('./sessions/OverlordSession');
+const { mutedByBot } = require('./globals');
 require('dotenv').config();
 const PROJECT_ROOT = __dirname;
 
@@ -60,6 +61,26 @@ client.on('messageCreate', async (message) => {
   const session = new OverlordSession(PROJECT_ROOT, voiceChannel, textChannel, focusMinutes, breakMinutes, shouldMute);
   sessions.set(message.guild.id, session);
   session.start();
+});
+
+client.on('voiceStateUpdate', async (oldState, newState) => {
+  const userId = oldState.id;
+  const rejoined = !oldState.channelId && newState.channelId;
+
+  if (rejoined && mutedByBot.has(userId)) {
+    try {
+      const member = await newState.guild.members.fetch(userId);
+
+      if (member.voice.serverMute) {
+        await member.voice.setMute(false);
+        console.log(`✅ Auto-unmuted ${member.user.username} on rejoin.`);
+      }
+
+      mutedByBot.delete(userId); // clean up either way
+    } catch (err) {
+      console.error(`❌ Failed to unmute ${member.user.username}: ${err.message}`);
+    }
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN).catch(console.error);
