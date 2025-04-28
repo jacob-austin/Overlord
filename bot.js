@@ -45,11 +45,29 @@ client.on('messageCreate', async (message) => {
   }
 
   // Arg parsing
-  let focusMinutes = 25, breakMinutes = 5, shouldMute = false;
+  let focusMinutes = 25
+  let breakMinutes = 5
+  let shouldMute = false;
+  const availableVoices = ['sabs', 'eren', 'anhvy'];
+  let selectedVoice = null;
 
   if (!isNaN(args[0])) focusMinutes = parseFloat(args[0]);
   if (!isNaN(args[1])) breakMinutes = parseFloat(args[1]);
-  if (args.includes('mute')) shouldMute = true;
+  args.forEach(arg => {
+    if (arg === 'mute') shouldMute = true;
+    if (arg?.startsWith('v:')) {
+      const voiceName = arg.split(':')[1]?.toLowerCase();
+      if (availableVoices.includes(voiceName)) {
+        selectedVoice = voiceName;
+      } else {
+        return message.reply(`⚠️ Invalid voice name. Available voices: ${availableVoices.join(', ')}`);
+      }
+    }
+  });
+  
+  if (!selectedVoice) {
+    selectedVoice = availableVoices[Math.floor(Math.random() * availableVoices.length)];
+  }
 
   if (focusMinutes < 1 || breakMinutes < 1) {
     return message.reply('⚠️ Focus and break times must be at least 1 minute.');
@@ -58,7 +76,7 @@ client.on('messageCreate', async (message) => {
   const voiceChannel = message.member.voice.channel;
   const textChannel = message.channel;
 
-  const session = new OverlordSession(PROJECT_ROOT, voiceChannel, textChannel, focusMinutes, breakMinutes, shouldMute);
+  const session = new OverlordSession(PROJECT_ROOT, voiceChannel, textChannel, focusMinutes, breakMinutes, shouldMute, selectedVoice);
   sessions.set(message.guild.id, session);
   session.start();
 });

@@ -1,10 +1,12 @@
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 const path = require('path');
+const fs = require('fs');
 
 class SoundPlayer {
-    constructor(voiceChannel, projectRoot) {
+    constructor(voiceChannel, projectRoot, voiceName = 'sabs') {
         this.projectRoot = projectRoot;
         this.voiceChannel = voiceChannel;
+        this.voiceName = voiceName;
     }
 
     play(filename) {
@@ -16,8 +18,14 @@ class SoundPlayer {
     
         try {
             const player = createAudioPlayer();
-            const resource = createAudioResource(path.join(this.projectRoot, 'assets', 'audio', 'Sabs', filename));
-        
+            const filePath = path.join(this.projectRoot, 'assets', 'audio', this.voiceName?.toLowerCase(), filename);
+            
+            if (!fs.existsSync(filePath)) {
+                console.error(`❌ Audio file not found: ${fullPath}`);
+                return;
+            }
+
+            const resource = createAudioResource(filePath);
             connection.subscribe(player);
             player.play(resource);
 

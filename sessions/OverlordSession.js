@@ -2,7 +2,7 @@ const SoundPlayer = require('../sound-player/SoundPlayer');
 const { mutedByBot } = require('../globals');
 
 class OverlordSession {
-  constructor(projectRoot, voiceChannel, textChannel, focusMinutes = 25, breakMinutes = 5, shouldMute = false) {
+  constructor(projectRoot, voiceChannel, textChannel, focusMinutes = 25, breakMinutes = 5, shouldMute = false, voiceName = 'sabs') {
     this.voiceChannel = voiceChannel;
     this.textChannel = textChannel;
     this.focusMinutes = focusMinutes;
@@ -12,6 +12,7 @@ class OverlordSession {
     this.running = false;
     this.mutedUsers = [];
     this.projectRoot = projectRoot;
+    this.voiceName = voiceName;
   }
 
   async start() {
@@ -29,7 +30,7 @@ class OverlordSession {
   async runFocusCycle() {
     if (!this.running) return;
 
-    const sound = new SoundPlayer(this.voiceChannel, this.projectRoot);
+    const sound = new SoundPlayer(this.voiceChannel, this.projectRoot, this.voiceName);
     const members = this.voiceChannel.members.filter(m => !m.user.bot);
     this.mutedUsers = [];
 
@@ -56,7 +57,7 @@ class OverlordSession {
   async runBreakCycle() {
     if (!this.running) return;
 
-    const sound = new SoundPlayer(this.voiceChannel, this.projectRoot);
+    const sound = new SoundPlayer(this.voiceChannel, this.projectRoot, this.voiceName);
     sound.play('endFocus.mp3');
 
     await this.unmuteAll();
