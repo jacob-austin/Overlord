@@ -18,15 +18,11 @@ class SoundPlayer {
     
         try {
             const player = createAudioPlayer();
-            console.log(this.projectRoot);
-            console.log(this.voiceName);
-            console.log(filename);
             const filePath = path.join(this.projectRoot, 'assets', 'audio', this.voiceName?.toLowerCase(), filename);
-            console.log(filePath);
             
             if (!fs.existsSync(filePath)) {
                 console.error(`❌ Audio file not found: ${filePath}`);
-                console.error(`📂 Current contents of ${path.dirname(filePath)}:`, fs.readdirSync(path.dirname(filePath)));
+                console.error(`📂 Current contents of ${path.dirname(filePath)}:`, fs.readdirSync(path.dirname(filePath)))
                 return;
             }
 
