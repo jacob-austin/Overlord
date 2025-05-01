@@ -85,6 +85,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
   const userId = oldState.id;
   const rejoined = !oldState.channelId && newState.channelId;
 
+  // === Auto-Unmute on Rejoin ===
   if (rejoined && mutedByBot.has(userId)) {
     try {
       const member = await newState.guild.members.fetch(userId);
@@ -94,11 +95,33 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         console.log(`✅ Auto-unmuted ${member.user.username} on rejoin.`);
       }
 
-      mutedByBot.delete(userId); // clean up either way
+      mutedByBot.delete(userId);
     } catch (err) {
-      console.error(`❌ Failed to unmute ${member.user.username}: ${err.message}`);
+      console.error(`❌ Failed to unmute ${member.user.username}/${userId}:`, err.message);
+    }
+  }
+
+  // === Auto-Stop Overlord Session if VC Becomes Empty ===
+  const guildId = oldState.guild.id;
+  const session = sessions.get(guildId);
+
+  if (!session) return;
+
+  const sessionChannel = session.voiceChannel;
+
+  // Only act if the user left the session’s voice channel
+  const leftSessionVC = oldState.channelId === sessionChannel.id && newState.channelId !== sessionChannel.id;
+
+  if (leftSessionVC) {
+    const remaining = sessionChannel.members.filter(m => !m.user.bot);
+    if (remaining.size === 0) {
+      session.stop();
+      sessions.delete(guildId);
+      console.log(`🛑 Overlord session stopped — everyone left the voice channel.`);
+      session.textChannel.send('🛑 VC empty, Overlord session stopped.');
     }
   }
 });
+
 
 client.login(process.env.DISCORD_TOKEN).catch(console.error);
