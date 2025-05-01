@@ -25,7 +25,7 @@ class SoundPlayer {
             console.log(filePath);
             
             if (!fs.existsSync(filePath)) {
-                console.error(`❌ Audio file not found: ${fullPath}`);
+                console.error(`❌ Audio file not found: ${filePath}`);
                 return;
             }
 
