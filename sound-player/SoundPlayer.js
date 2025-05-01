@@ -22,7 +22,6 @@ class SoundPlayer {
             
             if (!fs.existsSync(filePath)) {
                 console.error(`❌ Audio file not found: ${filePath}`);
-                console.error(`📂 Current contents of ${path.dirname(filePath)}:`, fs.readdirSync(path.dirname(filePath)))
                 return;
             }
 
