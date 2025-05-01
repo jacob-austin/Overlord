@@ -48,7 +48,7 @@ client.on('messageCreate', async (message) => {
   let focusMinutes = 25
   let breakMinutes = 5
   let shouldMute = false;
-  const availableVoices = ['sabs', 'eren'];
+  const availableVoices = ['sabs', 'eren', 'zoomy'];
   let selectedVoice = null;
 
   if (!isNaN(args[0])) focusMinutes = parseFloat(args[0]);
