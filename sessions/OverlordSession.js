@@ -15,7 +15,7 @@ class OverlordSession {
     this.voiceName = voiceName;
   }
 
-  async start() {
+  async start() { 
     this.running = true;
     await this.runFocusCycle();
   }
